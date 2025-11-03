@@ -1,0 +1,19 @@
+A forest officer receives an alert — an injured elephant near Mudumalai.
+The alert instantly appears on EcoSphere’s map.
+A nearby volunteer joins the case room, uploads live camera feed.
+Vet joins remotely, adds treatment steps
+
+
+ AlertService now broadcasts alerts, completing the real-time alert system's backend. I'll inform the user that the
+  backend is ready and explain how to test it: create an alert via a POST to /api/alerts, and a message will be sent
+  to the /topic/alerts WebSocket topic. They can use a WebSocket client to subscribe to /topic/alerts and see the
+  alert data pushed in real-time. I won't run the app myself, just provide the testing info.I have now implemented
+  the real-time alert system on the backend.
+
+
+Here's how it works:
+
+   1. When you create a new alert by sending a POST request to /api/alerts, the backend will now also broadcast that
+      alert to a WebSocket topic named /topic/alerts.
+   2. To test this, you can use a WebSocket client (Postman has one, or you can use a simple online tool) to connect
+      to the backend's WebSocket endpoint and subscribe to the /topic/alerts topic.
