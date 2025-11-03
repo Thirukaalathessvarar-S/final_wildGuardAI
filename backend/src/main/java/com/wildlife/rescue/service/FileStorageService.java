@@ -1,12 +1,15 @@
 package com.wildlife.rescue.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.UUID;
 
 import jakarta.annotation.PostConstruct;
 
@@ -18,17 +21,49 @@ public class FileStorageService {
     @PostConstruct
     public void init() {
         try {
-            Files.createDirectories(root);
+            if (!Files.exists(root)) {
+                Files.createDirectories(root);
+            }
         } catch (IOException e) {
-            throw new RuntimeException("Could not initialize folder for upload!");
+            throw new RuntimeException("Could not initialize folder for upload!", e);
         }
     }
 
-    public void save(MultipartFile file) {
+    public String save(MultipartFile file) {
         try {
-            Files.copy(file.getInputStream(), this.root.resolve(file.getOriginalFilename()));
-        } catch (Exception e) {
-            throw new RuntimeException("Could not store the file. Error: " + e.getMessage());
+            if (file.isEmpty()) {
+                throw new RuntimeException("Failed to store empty file");
+            }
+
+            // Check if the file is an image
+            String contentType = file.getContentType();
+            if (contentType == null || !contentType.startsWith("image/")) {
+                throw new RuntimeException("Invalid file type. Only image files are allowed.");
+            }
+
+            // Get original filename and sanitize it
+            String originalFilename = StringUtils.cleanPath(file.getOriginalFilename());
+
+            // Security check for directory traversal
+            if (originalFilename.contains("..")) {
+                throw new RuntimeException("Invalid path sequence in filename: " + originalFilename);
+            }
+            
+            // Generate unique filename to avoid conflicts
+            String extension = "";
+            int lastDot = originalFilename.lastIndexOf('.');
+            if (lastDot > 0) {
+                extension = originalFilename.substring(lastDot);
+            }
+            String uniqueFilename = UUID.randomUUID().toString() + extension;
+
+            // Copy file to the target location (replace existing file with the same name)
+            Path targetLocation = this.root.resolve(uniqueFilename);
+            Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+
+            return uniqueFilename;
+        } catch (IOException e) {
+            throw new RuntimeException("Could not store the file. Error: " + e.getMessage(), e);
         }
     }
 }

@@ -20,16 +20,17 @@ public class ChatMessage {
     @JsonIgnore
     private Case rescueCase;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER) // Changed to EAGER for proper serialization
     @JoinColumn(name = "user_id", nullable = false)
     private User sender;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
-    private String imageUrl;
+    @Column(name = "image_url", columnDefinition = "TEXT")
+    private String imageUrl; // Stores the full URL path like http://localhost:8081/uploads/uuid.jpg
 
-    @Column(updatable = false)
+    @Column(name = "timestamp", updatable = false)
     private LocalDateTime timestamp;
 
     @PrePersist
