@@ -79,14 +79,14 @@
   border-radius: 5px;
 }
 
-.role-ADMIN {
+.role-admin {
   background-color: #ffcdd2; /* Light Red */
 }
 
-.role-VET {
+.role-vet {
   background-color: #c8e6c9; /* Light Green */
 }
 
-.role-COORDINATOR {
+.role-coordinator {
   background-color: #bbdefb; /* Light Blue */
 }

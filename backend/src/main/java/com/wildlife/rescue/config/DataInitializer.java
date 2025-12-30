@@ -14,12 +14,63 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        if (userRepository.findByUsername("dummy_user").isEmpty()) {
-            User dummyUser = new User();
-            dummyUser.setUsername("dummy_user");
-            dummyUser.setPassword("dummy_password");
-            dummyUser.setRole("COORDINATOR");
-            userRepository.save(dummyUser);
+        if (userRepository.findByUsername("coordinator_user").isEmpty()) {
+            User user = new User();
+            user.setUsername("coordinator_user");
+            user.setPassword("dummy_password");
+            user.setRole("coordinator");
+            userRepository.save(user);
+        }
+        if (userRepository.findByUsername("vet_user").isEmpty()) {
+            User user = new User();
+            user.setUsername("vet_user");
+            user.setPassword("dummy_password");
+            user.setRole("vet");
+            userRepository.save(user);
+        }
+        if (userRepository.findByUsername("admin_user").isEmpty()) {
+            User user = new User();
+            user.setUsername("admin_user");
+            user.setPassword("dummy_password");
+            user.setRole("admin");
+            userRepository.save(user);
+        }
+
+        // Add Indianized vet names
+        if (userRepository.findByUsername("priya_sharma").isEmpty()) {
+            User user = new User();
+            user.setUsername("priya_sharma");
+            user.setPassword("dummy_password");
+            user.setRole("vet");
+            user.setAvailable(true);
+            userRepository.save(user);
+        }
+
+        if (userRepository.findByUsername("rohan_gupta").isEmpty()) {
+            User user = new User();
+            user.setUsername("rohan_gupta");
+            user.setPassword("dummy_password");
+            user.setRole("vet");
+            user.setAvailable(true);
+            userRepository.save(user);
+        }
+
+        if (userRepository.findByUsername("anjali_verma").isEmpty()) {
+            User user = new User();
+            user.setUsername("anjali_verma");
+            user.setPassword("dummy_password");
+            user.setRole("vet");
+            user.setAvailable(true);
+            userRepository.save(user);
+        }
+
+        if (userRepository.findByUsername("vikram_singh").isEmpty()) {
+            User user = new User();
+            user.setUsername("vikram_singh");
+            user.setPassword("dummy_password");
+            user.setRole("vet");
+            user.setAvailable(true);
+            userRepository.save(user);
         }
     }
 }

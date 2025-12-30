@@ -1,19 +1,94 @@
-A forest officer receives an alert — an injured elephant near Mudumalai.
-The alert instantly appears on EcoSphere’s map.
-A nearby volunteer joins the case room, uploads live camera feed.
-Vet joins remotely, adds treatment steps
+# Project Report: Wildlife Rescue Coordination Platform
+
+## 1. Summary
+
+This project is a web-based platform designed to facilitate the coordination of wildlife rescue operations. It consists of a Spring Boot backend and a React frontend, enabling real-time communication and case management for various stakeholders involved in wildlife rescue, such as coordinators, veterinarians, and administrators.
+
+The platform allows users to create, view, and manage rescue cases. Each case has a dedicated chat room where team members can communicate and share information, including images. The system uses WebSockets to provide real-time updates for new cases and chat messages, ensuring that all users have the most current information.
+
+## 2. Methodology
+
+### 2.1. Backend
+
+The backend is a robust Spring Boot application built with Java and Maven. It exposes a RESTful API for core functionalities and utilizes WebSockets for real-time communication.
+
+- **Framework:** Spring Boot 3.3.0
+- **Language:** Java 21
+- **Dependencies:**
+    - `spring-boot-starter-web`: For building RESTful web services.
+    - `spring-boot-starter-websocket`: For real-time communication.
+    - `spring-boot-starter-data-jpa`: For database persistence.
+    - `postgresql`: PostgreSQL JDBC driver.
+    - `spring-boot-starter-data-redis`: For in-memory data storage, likely for caching or session management.
+    - `lombok`: To reduce boilerplate code.
+- **Architecture:**
+    - **Controllers:** Handle HTTP requests and WebSocket messages. `CaseController` manages rescue cases, and `WebSocketController` handles real-time chat and case updates.
+    - **Services:** Contain the business logic. `CaseService`, `ChatMessageService`, and `FileStorageService` encapsulate the core functionalities.
+    - **Repositories:** `JpaRepository` interfaces (`CaseRepository`, `ChatMessageRepository`, etc.) are used for database interactions.
+    - **Models:** JPA entities (`Case`, `ChatMessage`, `User`, `Alert`) represent the database schema.
+    - **DTOs:** Data Transfer Objects (`CaseDTO`, `ChatMessageDTO`) are used to decouple the internal model from the API.
+
+### 2.2. Frontend
+
+The frontend is a single-page application (SPA) built with React. It provides a user-friendly interface for interacting with the backend.
+
+- **Framework:** React
+- **Language:** JavaScript (with JSX)
+- **Dependencies:**
+    - `react`: For building the user interface.
+    - `@stomp/stompjs` and `sockjs-client`: For WebSocket communication with the backend.
+    - `react-scripts`: For building and running the application.
+- **Architecture:**
+    - **Components:** The UI is built with React components. The main component, `App.js`, manages the application's state and handles communication with the backend.
+    - **State Management:** The application uses React's built-in state management (`useState`, `useEffect`) to handle component state and data fetching.
+    - **Real-time Updates:** The application subscribes to WebSocket topics to receive real-time updates for cases and chat messages, providing a dynamic and interactive user experience.
+    - **API Interaction:** The frontend uses the `fetch` API to make RESTful calls to the backend for initial data loading and file uploads.
+
+## 3. Features
+
+- **Role-based access:** Users can select a role (coordinator, vet, admin), which can be used to implement role-specific functionalities.
+- **Real-time case management:** New cases and case deletions are broadcast to all connected clients in real-time.
+- **Case-specific chat rooms:** Each rescue case has its own chat room for focused communication.
+- **Real-time chat:** Chat messages are sent and received in real-time using WebSockets.
+- **Image sharing:** Users can upload and share images in the chat.
+- **RESTful API:** A well-defined API for managing cases, messages, and files.
+
+## 4. How to Run
+
+### 4.1. Backend
+
+1.  Navigate to the `backend` directory.
+2.  Ensure you have a PostgreSQL database running and configure the connection details in `src/main/resources/application.properties`.
+3.  Run the application using the Maven wrapper: `./mvnw spring-boot:run`
+
+### 4.2. Frontend
+
+1.  Navigate to the `frontend` directory.
+2.  Install the dependencies: `npm install`
+3.  Start the development server: `npm start`
+4.  Open your browser and go to `http://localhost:3000`.
+
+## 5. Design Patterns
+
+### 5.1. Backend (Spring Boot)
 
 
- AlertService now broadcasts alerts, completing the real-time alert system's backend. I'll inform the user that the
-  backend is ready and explain how to test it: create an alert via a POST to /api/alerts, and a message will be sent
-  to the /topic/alerts WebSocket topic. They can use a WebSocket client to subscribe to /topic/alerts and see the
-  alert data pushed in real-time. I won't run the app myself, just provide the testing info.I have now implemented
-  the real-time alert system on the backend.
 
+# DESIGN Pattern
+1.  **Model-View-Controller (MVC) / Model-Service-Repository:** This is the core architectural pattern.
+    *   **Controller** (`@RestController`): Handles incoming HTTP requests (e.g., `CaseController`).
+    *   **Service** (`@Service`): Contains the business logic (e.g., `CaseService`).
+    *   **Model** (`@Entity`): Represents the data structure (e.g., `Case`, `ChatMessage`).
+    *   **Repository** (`@Repository`): Abstracts the data access layer, handling communication with the database (e.g., `CaseRepository`).
 
-Here's how it works:
+2.  **Observer Pattern:** This is implemented for real-time communication using WebSockets. The frontend clients (observers) subscribe to topics (e.g., `/topic/cases`). The backend (the subject) notifies all subscribed clients whenever a relevant event occurs, like the creation of a new case or a new chat message.
 
-   1. When you create a new alert by sending a POST request to /api/alerts, the backend will now also broadcast that
-      alert to a WebSocket topic named /topic/alerts.
-   2. To test this, you can use a WebSocket client (Postman has one, or you can use a simple online tool) to connect
-      to the backend's WebSocket endpoint and subscribe to the /topic/alerts topic.
+3.  **Data Transfer Object (DTO):** You are using `CaseDTO` and `ChatMessageDTO` to transfer data between the backend and the frontend. This is a great practice as it decouples your internal database models from the API that clients consume.
+
+4.  **Dependency Injection (DI):** The Spring framework heavily uses this pattern. Instead of classes creating their own dependencies, the framework "injects" them. This is seen with the `@Autowired` annotation, which leads to more modular and testable code.
+
+### 5.2. Frontend (React)
+
+1.  **Component-Based Architecture:** This is fundamental to React. The UI is broken down into smaller, reusable, and self-contained pieces called components (e.g., your main `App` component, which could be further broken down into `CaseList`, `ChatRoom`, etc.).
+
+2.  **Observer Pattern:** The frontend also uses this pattern. The `useEffect` hook in React "observes" state variables (like `selectedCase`), and re-runs code when those variables change. Similarly, the WebSocket client subscribes to and reacts to messages from the server.

@@ -20,4 +20,7 @@ public class User {
 
     @Column(nullable = false)
     private String role; // e.g., "COORDINATOR", "VET", "ADMIN"
+
+    @Column(nullable = false, columnDefinition = "boolean default true")
+    private boolean available = true;
 }

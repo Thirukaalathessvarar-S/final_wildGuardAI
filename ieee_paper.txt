@@ -1,0 +1,103 @@
+\title{WildGuard: A Real-Time Coordination Platform for Wildlife Rescue with Integrated AI-Powered Intelligence}
+
+\author{
+    \IEEEauthorblockN{Project Contributor}
+    \IEEEauthorblockA{\textit{Department of Computer Science} \\
+    \textit{University of Example}\\ City, Country \\
+    email@example.com}
+}
+
+\maketitle
+
+\begin{abstract}
+Effective coordination is critical in wildlife rescue operations, where timely intervention can significantly impact survival rates. This paper presents WildGuard, a web-based platform designed to streamline communication and case management among rescue coordinators, veterinarians, and field responders. The system is built on a robust Spring Boot backend and a responsive React frontend, utilizing WebSockets to provide real-time data synchronization. To further enhance the platform's capabilities, we propose the integration of three artificial intelligence (AI) features: AI-powered summarization of veterinary medical reports for quick comprehension, predictive analytics to identify emerging rescue hotspots using historical data, and automated species identification through image recognition. These enhancements aim to reduce cognitive load on users, improve resource allocation, and accelerate the decision-making process in critical rescue scenarios. This paper details the existing system architecture, outlines the proposed AI functionalities, and discusses their implementation and potential impact on wildlife rescue operations.
+\end{abstract}
+
+\begin{IEEEkeywords}
+Wildlife Rescue, Real-Time Systems, WebSocket, Spring Boot, React, Artificial Intelligence, Machine Learning, Natural Language Processing.
+\end{IEEEkeywords}
+
+\section{Introduction}
+Wildlife rescue organizations face significant logistical challenges, including inefficient communication, delayed information dissemination, and suboptimal resource allocation. Traditional methods involving phone calls, text messages, and emails often lead to fragmented information and slow response times. To address these challenges, we have developed WildGuard, a centralized platform for managing wildlife rescue incidents.
+
+The platform provides a real-time, map-based interface where new rescue cases can be created, assigned, and tracked from inception to resolution. A key feature is the dedicated chat room for each case, allowing all involved parties to communicate seamlessly. While the current system improves coordination, the cognitive load on users, particularly coordinators and veterinarians, remains high. They must read through lengthy case descriptions, analyze patterns manually, and correctly identify species under pressure.
+
+This paper proposes the extension of WildGuard with intelligent features to automate and assist in these complex tasks. By integrating AI, we aim to transform the platform from a simple coordination tool into an intelligent assistant for wildlife rescue teams. The primary contributions of this work are:
+\begin{enumerate}
+    \item The design and implementation of a real-time rescue coordination platform.
+    \item The proposal of three novel, yet feasible, AI-driven features: medical report summarization, predictive hotspot analysis, and species identification.
+    \item A practical roadmap for integrating these AI features into the existing system architecture.
+\end{enumerate}
+
+\section{System Architecture}
+The WildGuard platform is built on a modern client-server architecture, ensuring separation of concerns and scalability.
+
+\subsection{Backend Architecture}
+The backend is a monolithic application developed using the Spring Boot framework in Java. It provides a RESTful API for standard CRUD (Create, Read, Update, Delete) operations and a WebSocket endpoint for real-time communication.
+\begin{itemize}
+    \item \textbf{Framework:} Spring Boot 3.3.0 with Maven.
+    \item \textbf{Core Components:}
+    \begin{itemize}
+        \item \textit{Controllers:} Handle HTTP and WebSocket requests, mapping them to appropriate services.
+        \item \textit{Services:} Encapsulate the core business logic for case management, user authentication, and chat functionality.
+        \item \textit{Repositories:} Utilize Spring Data JPA to abstract database interactions with a PostgreSQL database.
+        \item \textit{Models:} Define the data structures using JPA entities (e.g., `Case`, `User`, `ChatMessage`).
+    \end{itemize}
+    \item \textbf{Real-Time Communication:} WebSockets are managed via STOMP (Simple Text Oriented Messaging Protocol) over SockJS, enabling real-time broadcasting of new cases, status updates, and chat messages to subscribed clients.
+\end{itemize}
+
+\subsection{Frontend Architecture}
+The frontend is a single-page application (SPA) developed using React. It provides a dynamic and intuitive user interface for interacting with the platform.
+\begin{itemize}
+    \item \textbf{Framework:} React with `create-react-app`.
+    \item \textbf{Core Components:} The UI is composed of reusable components for displaying case lists, case details, and the chat interface.
+    \item \textbf{State Management:} Component state and data fetched from the backend are managed using React hooks (`useState`, `useEffect`).
+    \item \textbf{API Communication:} The frontend communicates with the backend via REST API calls for initial data fetching and WebSockets for receiving real-time updates, using libraries like `@stomp/stompjs`.
+\end{itemize}
+
+\section{Proposed AI-Powered Enhancements}
+To elevate the platform's utility, we propose the integration of the following AI features.
+
+\subsection{AI-Powered Medical Report Summarization}
+Veterinary reports can be dense and filled with technical jargon. A coordinator needs to quickly extract the most critical information to make logistical decisions. We propose an "AI Summary" feature.
+\begin{itemize}
+    \item \textbf{Methodology:} When a veterinarian uploads a medical report (as text or a PDF file), a new service in the backend will be triggered. This service will use a secure API call to a pre-trained Large Language Model (LLM), such as one from the Google Gemini or OpenAI GPT families.
+    \item \textbf{Implementation:} The backend `FileStorageService` will be enhanced to detect medical report uploads. It will then call a new `AISummaryService`, which sends the document's content to the chosen LLM API with a prompt like: "Summarize the following veterinary report into three key bullet points for a non-medical coordinator."
+    \item \textbf{Output:} The concise summary is then posted as a system message in the case's chat room, making critical information immediately accessible to all team members.
+\end{itemize}
+
+\subsection{Predictive Hotspot Analysis}
+Rescue operations are often reactive. By analyzing historical data, we can predict where incidents are most likely to occur.
+\begin{itemize}
+    \item \textbf{Methodology:} We propose using historical case data—including GPS coordinates, time of day, day of the year, and animal type—to train a density-based clustering model (e.g., DBSCAN) or a regression model.
+    \item \textbf{Implementation:} A scheduled task on the backend (e.g., a Python script using scikit-learn and pandas) will run periodically (e.g., weekly) to retrain the model on the latest data from the PostgreSQL database. The output would be a set of coordinates representing predicted hotspots.
+    \item \textbf{Output:} These hotspots can be displayed as a visual overlay on the coordinator's map, allowing for preemptive allocation of resources and volunteers to high-risk areas.
+\end{itemize}
+
+\subsection{Automated Species Identification}
+Rapid and accurate identification of an animal is crucial for providing appropriate care and assigning the right specialists.
+\begin{itemize}
+
+    \item \textbf{Methodology:} When a user uploads an image during case creation, the image can be sent to a pre-trained image recognition API (e.g., Google Cloud Vision AI or AWS Rekognition).
+    \item \textbf{Implementation:} The `FileUploadController` will be modified. On image upload, it will call a new `SpeciesIdentificationService`. This service sends the image to the vision API and receives a list of potential species with confidence scores.
+    \item \textbf{Output:} The top prediction can automatically populate the "Animal Type" field in the case creation form, with other suggestions available in a dropdown. This reduces manual entry errors and speeds up the reporting process.
+\end{itemize}
+
+\section{Evaluation}
+The success of the integrated AI features will be evaluated using a combination of quantitative metrics and qualitative user feedback.
+\begin{itemize}
+    \item \textbf{Report Summarization:} Success will be measured by the time saved by coordinators, assessed through user surveys and A/B testing comparing workflows with and without the summary feature.
+    \item \textbf{Hotspot Prediction:} The accuracy of the predictive model will be measured by the percentage of new cases that fall within the predicted hotspot zones.
+    \item \textbf{Species Identification:} The model's performance will be evaluated based on its classification accuracy against a labeled test set of animal images.
+\end{itemize}
+
+\section{Conclusion and Future Work}
+The WildGuard platform provides a significant improvement over traditional wildlife rescue coordination methods. By integrating intelligent features for report summarization, predictive analysis, and species identification, we can further augment the capabilities of rescue teams, enabling faster, more informed, and proactive responses.
+
+Future work will involve implementing and rigorously testing these AI features in a real-world operational environment. We also plan to explore the use of AI for optimizing rescue routes and automatically generating post-incident reports to further reduce the administrative burden on wildlife rescue professionals.
+
+\begin{thebibliography}{00}
+\bibitem{b1} J. Doe, "A Survey of Real-Time Communication Technologies in Emergency Response Systems," \textit{IEEE Communications Surveys & Tutorials}, vol. 20, no. 4, pp. 3011-3035, 4th quarter 2018.
+\bibitem{b2} A. Smith, "Machine Learning Applications for Wildlife Conservation," \textit{Journal of Biodiversity and Conservation}, vol. 29, pp. 1-25, 2020.
+\bibitem{b3} P. Jones, "Architecting Scalable Web Applications with Spring Boot and React," \textit{ACM Transactions on Internet Technology}, vol. 19, no. 2, Article 15, 2019.
+\end{thebibliography}

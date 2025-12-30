@@ -36,9 +36,12 @@ public class WebSocketController {
         Case rescueCase = caseService.getCaseById(caseId)
                 .orElseThrow(() -> new IllegalArgumentException("Case not found with id: " + caseId));
         chatMessage.setRescueCase(rescueCase);
-        // Temporary solution for setting the sender
-        com.wildlife.rescue.model.User sender = userRepository.findByUsername("dummy_user")
-                .orElseThrow(() -> new IllegalStateException("Dummy user not found"));
+
+        String role = chatMessage.getSender().getRole();
+        String username = role.toLowerCase() + "_user";
+
+        com.wildlife.rescue.model.User sender = userRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalStateException(username + " not found"));
         chatMessage.setSender(sender);
         ChatMessage savedMessage = chatMessageService.saveMessage(chatMessage);
         messagingTemplate.convertAndSend("/topic/case/" + caseId, savedMessage);

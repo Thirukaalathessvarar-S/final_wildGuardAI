@@ -33,6 +33,10 @@ public class Case {
     @OneToMany(mappedBy = "rescueCase", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ChatMessage> chatMessages = new ArrayList<>();
 
+    @OneToOne
+    @JoinColumn(name = "assigned_vet_id")
+    private User assignedVet;
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();

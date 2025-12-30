@@ -11,6 +11,8 @@ function App() {
   const [stompClient, setStompClient] = useState(null);
   const [newCaseData, setNewCaseData] = useState({ animalType: '', location: '', description: '' });
   const [chatInput, setChatInput] = useState('');
+  const [availableVets, setAvailableVets] = useState([]);
+  const [selectedVet, setSelectedVet] = useState('');
 
   useEffect(() => {
     // Fetch initial cases
@@ -31,11 +33,29 @@ function App() {
           const deletedCaseId = JSON.parse(message.body);
           setCases((prevCases) => prevCases.filter((c) => c.id !== deletedCaseId));
         });
+        client.subscribe('/topic/cases/updated', (message) => {
+            const updatedCase = JSON.parse(message.body);
+            setCases((prevCases) =>
+                prevCases.map((c) => (c.id === updatedCase.id ? updatedCase : c))
+            );
+            if (selectedCase && selectedCase.id === updatedCase.id) {
+                setSelectedCase(updatedCase);
+            }
+            // Refetch available vets
+            fetch("http://localhost:8081/api/users/vets/available")
+                .then((response) => response.json())
+                .then((data) => setAvailableVets(data));
+        });
       },
     });
 
     client.activate();
     setStompClient(client);
+
+    // Fetch available vets
+    fetch("http://localhost:8081/api/users/vets/available")
+      .then((response) => response.json())
+      .then((data) => setAvailableVets(data));
 
     return () => {
       if (client) {
@@ -110,6 +130,18 @@ function App() {
     }
   };
 
+  const assignVet = () => {
+    if (selectedCase && selectedVet) {
+      fetch(`http://localhost:8081/api/cases/${selectedCase.id}/assign-vet/${selectedVet}`, {
+        method: 'POST',
+      })
+        .then((response) => response.json())
+        .then((updatedCase) => {
+          // The WebSocket subscription will handle the updates
+        });
+    }
+  };
+
   return (
     <div className="App">
       <header className="App-header">
@@ -157,6 +189,7 @@ function App() {
                   <p><strong>Animal:</strong> {caseItem.animalType}</p>
                   <p><strong>Location:</strong> {caseItem.location}</p>
                   <p><strong>Status:</strong> {caseItem.status}</p>
+                  {caseItem.assignedVet && <p><strong>Assigned Vet:</strong> {caseItem.assignedVet.username}</p>}
                 </div>
                 <button onClick={() => deleteCase(caseItem.id)}>Delete</button>
               </div>
@@ -167,6 +200,24 @@ function App() {
         {selectedCase && (
           <div className="case-details-section">
             <h2>Case #{selectedCase.id}</h2>
+            {selectedCase.assignedVet ? (
+              <p><strong>Assigned Vet:</strong> {selectedCase.assignedVet.username}</p>
+            ) : (
+              (role === 'coordinator' || role === 'admin') && (
+                <div className="vet-assignment-section">
+                  <h3>Assign a Vet</h3>
+                  <select value={selectedVet} onChange={(e) => setSelectedVet(e.target.value)}>
+                    <option value="">Select a Vet</option>
+                    {availableVets.map((vet) => (
+                      <option key={vet.id} value={vet.id}>
+                        {vet.username}
+                      </option>
+                    ))}
+                  </select>
+                  <button onClick={assignVet}>Assign Vet</button>
+                </div>
+              )
+            )}
             <div className="chat-room">
               <div className="messages-container">
                 {Array.isArray(chatMessages) && chatMessages.map((chat, index) => (

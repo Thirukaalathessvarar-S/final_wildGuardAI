@@ -3,14 +3,9 @@ package com.wildlife.rescue.controller;
 import com.wildlife.rescue.dto.CaseDTO;
 import com.wildlife.rescue.dto.ChatMessageDTO;
 import com.wildlife.rescue.mapper.CaseMapper;
-import com.wildlife.rescue.mapper.ChatMessageMapper;
-import com.wildlife.rescue.model.ChatMessage;
 import com.wildlife.rescue.service.CaseService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,7 +30,13 @@ public class CaseController {
                 .map(com.wildlife.rescue.model.Case::getChatMessages)
                 .orElseThrow(() -> new IllegalArgumentException("Case not found with id: " + caseId))
                 .stream()
-                .map(ChatMessageMapper::toDTO)
+                .map(com.wildlife.rescue.mapper.ChatMessageMapper::toDTO)
                 .collect(Collectors.toList());
+    }
+
+    @PostMapping("/{caseId}/assign-vet/{vetId}")
+    public CaseDTO assignVet(@PathVariable Long caseId, @PathVariable Long vetId) {
+        com.wildlife.rescue.model.Case updatedCase = caseService.assignVetToCase(caseId, vetId);
+        return CaseMapper.toDTO(updatedCase);
     }
 }
