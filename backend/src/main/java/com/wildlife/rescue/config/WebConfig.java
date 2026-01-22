@@ -20,9 +20,9 @@ public class WebConfig implements WebMvcConfigurer {
         final CorsConfiguration config = new CorsConfiguration();
         
         config.setAllowCredentials(true);
-        config.setAllowedOriginPatterns(Arrays.asList("*")); // Allow all origins
+        config.setAllowedOrigins(Arrays.asList("http://localhost:3000")); // Explicitly allow frontend origin
         config.setAllowedHeaders(Collections.singletonList("*"));
-        config.setAllowedMethods(Collections.singletonList("*"));
+        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS")); // Explicit methods
         config.setExposedHeaders(Arrays.asList(
             "Access-Control-Allow-Origin",
             "Access-Control-Allow-Credentials",

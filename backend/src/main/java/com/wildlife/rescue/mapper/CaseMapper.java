@@ -10,6 +10,8 @@ public class CaseMapper {
         dto.setId(rescueCase.getId());
         dto.setAnimalType(rescueCase.getAnimalType());
         dto.setLocation(rescueCase.getLocation());
+        dto.setLatitude(rescueCase.getLatitude());
+        dto.setLongitude(rescueCase.getLongitude());
         dto.setDescription(rescueCase.getDescription());
         dto.setStatus(rescueCase.getStatus());
         dto.setCreatedAt(rescueCase.getCreatedAt());

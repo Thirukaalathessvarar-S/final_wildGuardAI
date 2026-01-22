@@ -20,6 +20,10 @@ public class Case {
 
     private String location;
 
+    private Double latitude;
+
+    private Double longitude;
+
     private String description;
 
     private String status; // e.g., "NEW", "ASSIGNED", "RESOLVED"
@@ -30,6 +34,7 @@ public class Case {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @com.fasterxml.jackson.annotation.JsonIgnore
     @OneToMany(mappedBy = "rescueCase", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ChatMessage> chatMessages = new ArrayList<>();
 

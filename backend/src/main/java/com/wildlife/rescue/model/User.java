@@ -23,4 +23,10 @@ public class User {
 
     @Column(nullable = false, columnDefinition = "boolean default true")
     private boolean available = true;
+
+    private Double latitude;
+
+    private Double longitude;
+
+    private java.time.LocalDateTime lastLocationUpdate;
 }

@@ -9,6 +9,8 @@ public class CaseDTO {
     private Long id;
     private String animalType;
     private String location;
+    private Double latitude;
+    private Double longitude;
     private String description;
     private String status;
     private LocalDateTime createdAt;

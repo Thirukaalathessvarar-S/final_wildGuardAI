@@ -17,11 +17,19 @@ public class CaseController {
     @Autowired
     private CaseService caseService;
 
+    @Autowired
+    private com.wildlife.rescue.service.LocationService locationService;
+
     @GetMapping
     public List<CaseDTO> getAllCases() {
         return caseService.getAllCases().stream()
                 .map(CaseMapper::toDTO)
                 .collect(Collectors.toList());
+    }
+
+    @PostMapping
+    public CaseDTO createCase(@RequestBody com.wildlife.rescue.model.Case newCase) {
+        return CaseMapper.toDTO(caseService.createCase(newCase));
     }
 
     @GetMapping("/{caseId}/messages")
@@ -38,5 +46,17 @@ public class CaseController {
     public CaseDTO assignVet(@PathVariable Long caseId, @PathVariable Long vetId) {
         com.wildlife.rescue.model.Case updatedCase = caseService.assignVetToCase(caseId, vetId);
         return CaseMapper.toDTO(updatedCase);
+    }
+
+    @GetMapping("/{caseId}/nearest-vets")
+    public List<com.wildlife.rescue.model.User> getNearestVets(@PathVariable Long caseId) {
+        return caseService.getCaseById(caseId)
+                .map(c -> {
+                    if (c.getLatitude() == null || c.getLongitude() == null) {
+                        return java.util.Collections.<com.wildlife.rescue.model.User>emptyList();
+                    }
+                    return locationService.findNearestVets(c.getLatitude(), c.getLongitude(), 5);
+                })
+                .orElseThrow(() -> new IllegalArgumentException("Case not found with id: " + caseId));
     }
 }
